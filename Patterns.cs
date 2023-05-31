@@ -1,58 +1,61 @@
-//Factory pattern
-public class FlyweightFactory
+using System;
+using System.Collections.Generic;
+
+//Flyweight pattern
+public class DataFactory
 {
-    private Dictionary<char, Flyweight> flyweights = new Dictionary<char, Flyweight>();
-    public Flyweight GetFlyweight(char key)
+    public Dictionary<char, Data> Datas = new Dictionary<char, Data>();
+    public Data GetData(char key)
     {
-        Flyweight flyweight;
-        if (flyweights.ContainsKey(key))
+        Data Data;
+        if (Datas.ContainsKey(key))
         {
-            flyweight = flyweights[key];
+            Data = Datas[key];
         }
         else
         {
             switch (key)
             {
                 case 'A':
-                    flyweight = new FlyweightA();
+                    Data = new DataA();
                     break;
                 case 'B':
-                    flyweight = new FlyweightB();
+                    Data = new DataB();
                     break;
                 default:
                     throw new ArgumentException("Invalid key.");
             }
-            flyweights.Add(key, flyweight);
+            Datas.Add(key, Data);
         }
-        return flyweight;
+        return Data;
     }
 }
-//Flyweight pattern
-public abstract class Flyweight
+//Data pattern
+public abstract class Data
 {
     public abstract void Operation(int extrinsicState);
 }
-public class FlyweightA : Flyweight
+public class DataA : Data
 {
     public override void Operation(int extrinsicState)
     {
-        Console.WriteLine("ConcreteFlyweightA: " + extrinsicState);
+        Console.WriteLine("ConcreteDataA: " + extrinsicState);
     }
 }
-public class FlyweightB : Flyweight
+public class DataB : Data
 {
     public override void Operation(int extrinsicState)
     {
-        Console.WriteLine("ConcreteFlyweightB: " + extrinsicState);
+        Console.WriteLine("ConcreteDataB: " + extrinsicState);
     }
 }
 // Iterator pattern
 public class Aggregate
 {
-    private List<object> items = new List<object>();
-    public Iterator CreateIterator()
+    public List<object> items = new List<object>();
+    public DataList CreateDataList()
     {
-        return new Iterator(this);
+        return new DataList(this);
     }
     public int Count
     {
@@ -64,11 +67,11 @@ public class Aggregate
         set { items.Insert(index, value); }
     }
 }
-public class Iterator
+public class DataList
 {
-    private Aggregate aggregate;
-    private int index = 0;
-    public Iterator(Aggregate aggregate)
+    public Aggregate aggregate;
+    public int index = 0;
+    public DataList(Aggregate aggregate)
     {
         this.aggregate = aggregate;
     }
@@ -91,30 +94,55 @@ public class Iterator
         get { return index < aggregate.Count ? aggregate[index] : null; }
     }
 }
+
+// Singleton pattern
+class Instance
+{
+    public static Instance instance;
+
+    public Instance() { }
+
+    public static Instance GetInstance()
+    {
+        if (instance == null)
+        {
+            instance = new Instance();
+        }
+        return instance;
+    }
+
+    public DataFactory Operation()
+    {
+        DataFactory a = new DataFactory();
+        return a;
+    }
+}
+
 // Usage example
 class Program
 {
     static void Main(string[] args)
     {
-        // Singleton pattern
-        FlyweightFactory factory = new FlyweightFactory();
-        // Flyweight pattern
-        
-        Flyweight flyweight1 = factory.GetFlyweight('A');
-        flyweight1.Operation(1);
-        Flyweight flyweight2 = factory.GetFlyweight('B');
-        flyweight2.Operation(2);
-        Flyweight flyweight3 = factory.GetFlyweight('A');
-        flyweight3.Operation(3);
-        // Iterator pattern
+
+        Instance checkinstance = new Instance();
+        DataFactory factory =checkinstance.Operation();
+
+
+        Data Data1 = factory.GetData('A');
+        Data1.Operation(1);
+        Data Data2 = factory.GetData('B');
+        Data2.Operation(2);
+        Data Data3 = factory.GetData('A');
+        Data3.Operation(3);
+
         Aggregate aggregate = new Aggregate();
-        aggregate[0] = flyweight1;
-        aggregate[1] = flyweight2;
-        aggregate[2] = flyweight3;
-        Iterator iterator = aggregate.CreateIterator();
-        while (!iterator.IsDone)
+        aggregate[0] = Data1;
+        aggregate[1] = Data2;
+        aggregate[2] = Data3;
+        DataList DataList = aggregate.CreateDataList();
+        while (!DataList.IsDone)
         {
-            Console.WriteLine(iterator.Next());
+            Console.WriteLine(DataList.Next());
         }
     }
 }
